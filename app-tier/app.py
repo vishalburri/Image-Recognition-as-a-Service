@@ -1,7 +1,7 @@
 import os
 import boto3
 from s3_url import S3Url
-from image_classification import classify
+from image_classification import get_classified_image
 import time
 from datetime import datetime, timezone
 import subprocess
@@ -10,19 +10,24 @@ import json
 # Define AWS Region
 aws_region = 'us-east-1'
 # SQS Queue URL
-queue_url = 'https://sqs.us-east-1.amazonaws.com/170322465562/queue'
+queue_url = 'https://sqs.us-east-1.amazonaws.com/376277702783/CSE-546-project1-request-queue'
 
-results_s3 = "cse546-project1-output"
 
 # Instantiate Clients
 sqs = boto3.client('sqs', region_name=aws_region)
 s3 = boto3.client('s3')
 ec2 = boto3.client('ec2', region_name=aws_region)
-dynamodb = boto3.resource('dynamodb', region_name=aws_region,
-                          endpoint_url='https://dynamodb.us-east-1.amazonaws.com')
 # Obtain Instance ID of instance
 r = requests.get('http://169.254.169.254/latest/meta-data/instance-id')
 instance_id = r.text
+
+
+def get_num_messages_available():
+    """ Returns the number of messages in the queue """
+    response = sqs.get_queue_attributes(QueueUrl=queue_url, AttributeNames=[
+                                        'ApproximateNumberOfMessages'])
+    messages_available = response['Attributes']['ApproximateNumberOfMessages']
+    return int(messages_available)
 
 
 def get_latest_message():
@@ -53,9 +58,7 @@ def delete_message(receipt_handle):
 def process_image(s3_object_path):
     s = S3Url(s3_object_path)
     s3.download_file(s.bucket, s.key, f'/tmp/{s.key}')
-
-    result = classify(f'/tmp/{s.key}')
-
+    result = get_classified_image(f'/tmp/{s.key}')
     os.remove(f'/tmp/{s.key}')
 
     print(result)
@@ -76,5 +79,6 @@ def run_job():
 
 
 while True:
+    print("Running Job")
     run_job()
     time.sleep(5)  # poll every 5 seconds
