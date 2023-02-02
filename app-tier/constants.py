@@ -1,5 +1,5 @@
 OUTPUT_S3_BUCKET = 'cse546-project1-output-s3'
-INPUT_S3_BUCKET = 'cse546-project1-output-s3'
+INPUT_S3_BUCKET = 'cse546-project1-input-s3'
 AWS_REGION = 'us-east-1'
 SQS_RESPONSE_URL = 'https://sqs.us-east-1.amazonaws.com/376277702783/CSE-546-project1-response-queue'
 SQS_REQUEST_URL = 'https://sqs.us-east-1.amazonaws.com/376277702783/CSE-546-project1-request-queue'
