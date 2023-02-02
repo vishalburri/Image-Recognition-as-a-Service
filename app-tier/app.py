@@ -2,11 +2,11 @@ import os
 import boto3
 from s3_url import S3Url
 from image_classification import get_classified_image
+from s3_upload import upload_to_s3
+from sqs_sender import send_message_to_sqs
 import time
-from datetime import datetime, timezone
-import subprocess
-import requests
 import json
+
 # Define AWS Region
 aws_region = 'us-east-1'
 # SQS Queue URL
@@ -17,9 +17,6 @@ queue_url = 'https://sqs.us-east-1.amazonaws.com/376277702783/CSE-546-project1-r
 sqs = boto3.client('sqs', region_name=aws_region)
 s3 = boto3.client('s3')
 ec2 = boto3.client('ec2', region_name=aws_region)
-# Obtain Instance ID of instance
-r = requests.get('http://169.254.169.254/latest/meta-data/instance-id')
-instance_id = r.text
 
 
 def get_num_messages_available():
@@ -60,7 +57,9 @@ def process_image(s3_object_path):
     s3.download_file(s.bucket, s.key, f'/tmp/{s.key}')
     result = get_classified_image(f'/tmp/{s.key}')
     os.remove(f'/tmp/{s.key}')
-
+    img_key = s.key.split(".")[0]
+    upload_to_s3(img_key, result)
+    send_message_to_sqs(s.key, result.split(",")[-1])
     print(result)
 
 

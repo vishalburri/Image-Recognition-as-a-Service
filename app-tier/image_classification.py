@@ -34,6 +34,7 @@ def get_classified_image(local_path: str) -> str:
         labels = json.load(f)
     result = labels[np.array(predicted)[0]]
     img_name = local_path.split("/")[-1]
+    img_name = img_name.split(".")[0]
     # save_name = f"({img_name}, {result})"
     save_name = f"{img_name},{result}"
     return (f"{save_name}")
