@@ -10,27 +10,3 @@ instance_id = r.text
 
 def upload_to_s3(image_key, data):
     client.put_object(Body=data, Bucket=bucket_name, Key=image_key)
-    put_tags_response = client.put_object_tagging(
-        Bucket=bucket_name,
-        Key=image_key,
-        Tagging={
-            'TagSet': [
-                {
-                    'Key': 'Image',
-                    'Value': image_key
-                },
-                {
-                    'Key': 'Classification',
-                    'Value': data
-                },
-                {
-                    'Key': 'ClassifiedBy',
-                    'Value': instance_id
-                },
-                {
-                    'Key': 'ClassifiedOn',
-                    'Value': str(datetime.now(timezone.utc))
-                }
-            ]
-        }
-    )
