@@ -16,7 +16,7 @@ class S3Client:
             file (UploadFile): _description_
             bucket_name (str): _description_
         """
-        self.client.s3.upload_fileobj(
+        self.client.upload_fileobj(
             file.file,
             bucket_name,
             file.filename,
