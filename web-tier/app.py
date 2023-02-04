@@ -41,6 +41,13 @@ async def upload_files(files: list[UploadFile] | None):
     raise HTTPException(status_code=302, headers={"Location": "/"})
 
 
+@app.post("/upload")
+async def upload(file: UploadFile):
+    s3_client.upload_to_s3(file, INPUT_S3_BUCKET)
+    result = await get_result(file.filename)
+    return result
+
+
 def get_response():
     while True:
         messages = sqs_client.get_messages_from_queue()
