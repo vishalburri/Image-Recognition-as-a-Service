@@ -6,7 +6,7 @@ import logging
 
 
 def process_image(sqs: SqsClient, image_processor: ImageProcessor) -> None:
-    while sqs.get_approximate_messages_from_queue() > 0:
+    while True:
         try:
             logging.info("Received Image link from SQS")
             start_time = time.time()

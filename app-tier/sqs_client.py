@@ -31,21 +31,24 @@ class SqsClient:
         Returns:
             Tuple[str, str]: returns s3_object_path and receipt_handle of the message
         """
-        response = self.client.receive_message(
-            QueueUrl=constants.SQS_REQUEST_URL,
-            MaxNumberOfMessages=1,
-            VisibilityTimeout=10,
-            MessageAttributeNames=['All'],
-            WaitTimeSeconds=0
-        )
-        message = response['Messages'][0]
-        receipt_handle = message['ReceiptHandle']
-        s3_path_dict = json.loads(message['Body'])
-        bucket_name = s3_path_dict['Records'][0]['s3']['bucket']['name']
-        key_name = s3_path_dict['Records'][0]['s3']['object']['key']
-        s3_path = f"s3://{bucket_name}/{key_name}"
+        try:
+            response = self.client.receive_message(
+                QueueUrl=constants.SQS_REQUEST_URL,
+                MaxNumberOfMessages=1,
+                VisibilityTimeout=10,
+                MessageAttributeNames=['All'],
+                WaitTimeSeconds=0
+            )
+            message = response['Messages'][0]
+            receipt_handle = message['ReceiptHandle']
+            s3_path_dict = json.loads(message['Body'])
+            bucket_name = s3_path_dict['Records'][0]['s3']['bucket']['name']
+            key_name = s3_path_dict['Records'][0]['s3']['object']['key']
+            s3_path = f"s3://{bucket_name}/{key_name}"
 
-        return s3_path, receipt_handle
+            return s3_path, receipt_handle
+        except Exception as e:
+            print(e)
 
     def delete_message_from_queue(self, receipt_handle: str):
         """
@@ -54,10 +57,13 @@ class SqsClient:
         Args:
             receipt_handle (str): _description_
         """
-        self.client.delete_message(
-            QueueUrl=constants.SQS_REQUEST_URL,
-            ReceiptHandle=receipt_handle
-        )
+        try:
+            self.client.delete_message(
+                QueueUrl=constants.SQS_REQUEST_URL,
+                ReceiptHandle=receipt_handle
+            )
+        except Exception as e:
+            print(e)
 
     def send_message_to_queue(self, image_key: str, image_value: str):
         """
@@ -67,7 +73,11 @@ class SqsClient:
             image_key (_type_): _description_
             image_value (_type_): _description_
         """
-        response = self.client.send_message(
-            QueueUrl=constants.SQS_RESPONSE_URL,
-            MessageBody=json.dumps({'Key': image_key, 'Value': image_value}),
-        )
+        try:
+            response = self.client.send_message(
+                QueueUrl=constants.SQS_RESPONSE_URL,
+                MessageBody=json.dumps(
+                    {'Key': image_key, 'Value': image_value}),
+            )
+        except Exception as e:
+            print(e)
