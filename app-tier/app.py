@@ -30,8 +30,6 @@ def run_polling_job() -> None:
 
     while True:
         process_image(sqs, image_processor)
-        # poll every 5 seconds
-        time.sleep(5)
 
 
 run_polling_job()
