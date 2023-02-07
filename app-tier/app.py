@@ -6,19 +6,18 @@ import logging
 
 
 def process_image(sqs: SqsClient, image_processor: ImageProcessor) -> None:
-    while True:
-        try:
-            logging.info("Received Image link from SQS")
-            start_time = time.time()
-            s3_object_path, receipt_handle = sqs.get_message_from_queue()
-            image_processor.process(s3_object_path)
-            sqs.delete_message_from_queue(receipt_handle)
-            total_time = time.time() - start_time
-            logging.info(
-                f"Successfully Processed {s3_object_path} in {total_time} seconds")
-        except Exception as e:
-            logging.info("Messages not available", e)
-            time.sleep(2)
+    try:
+        logging.info("Received Image link from SQS")
+        start_time = time.time()
+        s3_object_path, receipt_handle = sqs.get_message_from_queue()
+        image_processor.process(s3_object_path)
+        sqs.delete_message_from_queue(receipt_handle)
+        total_time = time.time() - start_time
+        logging.info(
+            f"Successfully Processed {s3_object_path} in {total_time} seconds")
+    except Exception as e:
+        logging.info("Messages not available", e)
+        time.sleep(2)
 
 
 def run_polling_job() -> None:
