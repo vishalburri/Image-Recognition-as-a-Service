@@ -37,7 +37,7 @@ class SqsClient:
                 MaxNumberOfMessages=1,
                 VisibilityTimeout=20,
                 MessageAttributeNames=['All'],
-                WaitTimeSeconds=0
+                WaitTimeSeconds=10
             )
             message = response['Messages'][0]
             receipt_handle = message['ReceiptHandle']
