@@ -9,8 +9,8 @@ class S3Client:
         """_summary_
         """
         self.client = boto3.client('s3')
-        r = requests.get(constants.INSTANCE_META_DATA_URL)
-        self.instance_id = r.text
+        # r = requests.get(constants.INSTANCE_META_DATA_URL)
+        # self.instance_id = r.text
 
     def download_file(self, bucket: str, key: str, filename: str):
         """_summary_
@@ -31,27 +31,27 @@ class S3Client:
         """
         self.client.put_object(
             Body=data, Bucket=constants.OUTPUT_S3_BUCKET, Key=image_key)
-        self.client.put_object_tagging(
-            Bucket=constants.OUTPUT_S3_BUCKET,
-            Key=image_key,
-            Tagging={
-                'TagSet': [
-                    {
-                        'Key': 'Image',
-                        'Value': image_key
-                    },
-                    {
-                        'Key': 'Output',
-                        'Value': data.split(",")[-1]
-                    },
-                    {
-                        'Key': 'Instance',
-                        'Value': str(self.instance_id)
-                    },
-                    {
-                        'Key': 'ExecutedOn',
-                        'Value': str(datetime.now(timezone.utc))
-                    }
-                ]
-            }
-        )
+        # self.client.put_object_tagging(
+        #     Bucket=constants.OUTPUT_S3_BUCKET,
+        #     Key=image_key,
+        #     Tagging={
+        #         'TagSet': [
+        #             {
+        #                 'Key': 'Image',
+        #                 'Value': image_key
+        #             },
+        #             {
+        #                 'Key': 'Output',
+        #                 'Value': data.split(",")[-1]
+        #             },
+        #             {
+        #                 'Key': 'Instance',
+        #                 'Value': str(self.instance_id)
+        #             },
+        #             {
+        #                 'Key': 'ExecutedOn',
+        #                 'Value': str(datetime.now(timezone.utc))
+        #             }
+        #         ]
+        #     }
+        # )

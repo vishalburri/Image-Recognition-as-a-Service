@@ -48,7 +48,8 @@ class SqsClient:
 
             return s3_path, receipt_handle
         except Exception as e:
-            print(e)
+            print("Exception", e)
+            return (None, None)
 
     def delete_message_from_queue(self, receipt_handle: str):
         """
