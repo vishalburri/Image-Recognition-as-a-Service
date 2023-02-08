@@ -2,11 +2,10 @@ from fastapi import FastAPI, UploadFile, HTTPException, Request
 from fastapi.templating import Jinja2Templates
 from s3_client import S3Client
 from sqs_client import SqsClient
-from threading import Thread
+from threading import Thread, Lock
 import time
 import json
 import asyncio
-
 app = FastAPI()
 
 # Load the Jinja2 template
@@ -15,15 +14,18 @@ INPUT_S3_BUCKET = 'cse546-project1-input-s3'
 s3_client = S3Client()
 sqs_client = SqsClient()
 result_dict = {}
+lock = Lock()
 
 
 async def get_result(key):
     while True:
         await asyncio.sleep(1)
-        if key in result_dict:
-            output_to_be_returned = '{0}'.format(result_dict[key])
-            del result_dict[key]
-            return output_to_be_returned
+        # time.sleep(1)
+        with lock:
+            if key in result_dict:
+                output_to_be_returned = '{0}'.format(result_dict[key])
+                del result_dict[key]
+                return output_to_be_returned
 
 
 @app.get("/")
