@@ -34,6 +34,7 @@ def run_polling_job() -> None:
 
     while True:
         process_image(sqs, image_processor)
+        time.sleep(2)
 
 
 run_polling_job()
