@@ -17,22 +17,32 @@ def process_image(sqs: SqsClient, image_processor: ImageProcessor) -> None:
         print(f"s3 path : {s3_object_path}")
         if s3_object_path:
             image_processor.process(s3_object_path)
-            # time.sleep(0.5)
             sqs.delete_message_from_queue(receipt_handle)
         else:
             try:
-                # terminate instance if no message is found
-                ec2_client.terminate_instances(InstanceIds=[r.text])
-                time.sleep(2)
+                _terminate_instance()
             except Exception as err:
                 print(err)
-            # total_time = time.time() - start_time
-            # logging.info(
-            # f"Successfully Processed {s3_object_path} in {total_time} seconds")
     except Exception as e:
         print(e)
         # logging.info("Messages not available", e)
         time.sleep(2)
+
+
+def _terminate_instance():
+    response = ec2_client.describe_instances(
+        Filters=[{'Name': 'instance-id', 'Values': [r.text]}])
+    instance = response['Reservations'][0]['Instances'][0]
+    tag_name = ''
+    if 'Tags' in instance:
+        for tag in instance['Tags']:
+            if tag['Key'] == 'Name':
+                tag_name = tag['Value']
+                break
+    # terminate instance if no message is found
+    if tag_name != "app-instance-1":
+        ec2_client.terminate_instances(InstanceIds=[r.text])
+    time.sleep(2)
 
 
 def run_polling_job() -> None:
