@@ -9,19 +9,19 @@ class S3Client:
         """_summary_
         """
         self.client = boto3.client('s3')
-        self.ec2_client = boto3.client('ec2', region_name=constants.AWS_REGION)
-        r = requests.get(constants.INSTANCE_META_DATA_URL)
-        self.instance_id = r.text
-        response = self.ec2_client.describe_instances(
-            Filters=[{'Name': 'instance-id', 'Values': [r.text]}])
-        instance = response['Reservations'][0]['Instances'][0]
-        tag_name = ''
-        if 'Tags' in instance:
-            for tag in instance['Tags']:
-                if tag['Key'] == 'Name':
-                    tag_name = tag['Value']
-                    break
-        self.tag_name = tag_name
+        # self.ec2_client = boto3.client('ec2', region_name=constants.AWS_REGION)
+        # r = requests.get(constants.INSTANCE_META_DATA_URL)
+        # self.instance_id = r.text
+        # response = self.ec2_client.describe_instances(
+        #     Filters=[{'Name': 'instance-id', 'Values': [r.text]}])
+        # instance = response['Reservations'][0]['Instances'][0]
+        # tag_name = ''
+        # if 'Tags' in instance:
+        #     for tag in instance['Tags']:
+        #         if tag['Key'] == 'Name':
+        #             tag_name = tag['Value']
+        #             break
+        # self.tag_name = tag_name
 
     def download_file(self, bucket: str, key: str, filename: str):
         """_summary_
