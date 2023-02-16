@@ -40,7 +40,7 @@ class SqsClient:
                 MessageAttributeNames=['All'],
                 WaitTimeSeconds=20
             )
-            if 'Messages' in response and len(response['Messages']) == 0:
+            if 'Messages' not in response or len(response['Messages']) == 0:
                 # terminate this instance
                 instance_id = requests.get(
                     'http://169.254.169.254/latest/meta-data/instance-id').text
