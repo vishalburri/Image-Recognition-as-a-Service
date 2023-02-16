@@ -9,8 +9,19 @@ class S3Client:
         """_summary_
         """
         self.client = boto3.client('s3')
-        # r = requests.get(constants.INSTANCE_META_DATA_URL)
-        # self.instance_id = r.text
+        self.ec2_client = boto3.client('ec2', region_name=constants.AWS_REGION)
+        r = requests.get(constants.INSTANCE_META_DATA_URL)
+        self.instance_id = r.text
+        response = self.ec2_client.describe_instances(
+            Filters=[{'Name': 'instance-id', 'Values': [r.text]}])
+        instance = response['Reservations'][0]['Instances'][0]
+        tag_name = ''
+        if 'Tags' in instance:
+            for tag in instance['Tags']:
+                if tag['Key'] == 'Name':
+                    tag_name = tag['Value']
+                    break
+        self.tag_name = tag_name
 
     def download_file(self, bucket: str, key: str, filename: str):
         """_summary_
@@ -31,27 +42,27 @@ class S3Client:
         """
         self.client.put_object(
             Body=data, Bucket=constants.OUTPUT_S3_BUCKET, Key=image_key)
-        # self.client.put_object_tagging(
-        #     Bucket=constants.OUTPUT_S3_BUCKET,
-        #     Key=image_key,
-        #     Tagging={
-        #         'TagSet': [
-        #             {
-        #                 'Key': 'Image',
-        #                 'Value': image_key
-        #             },
-        #             {
-        #                 'Key': 'Output',
-        #                 'Value': data.split(",")[-1]
-        #             },
-        #             {
-        #                 'Key': 'Instance',
-        #                 'Value': str(self.instance_id)
-        #             },
-        #             {
-        #                 'Key': 'ExecutedOn',
-        #                 'Value': str(datetime.now(timezone.utc))
-        #             }
-        #         ]
-        #     }
-        # )
+        self.client.put_object_tagging(
+            Bucket=constants.OUTPUT_S3_BUCKET,
+            Key=image_key,
+            Tagging={
+                'TagSet': [
+                    {
+                        'Key': 'Image Name',
+                        'Value': image_key
+                    },
+                    {
+                        'Key': 'Result',
+                        'Value': data.split(",")[-1]
+                    },
+                    {
+                        'Key': 'Instance Name',
+                        'Value': str(self.tag_name)
+                    },
+                    {
+                        'Key': 'Instance ID',
+                        'Value': str(self.instance_id)
+                    }
+                ]
+            }
+        )

@@ -35,9 +35,9 @@ class SqsClient:
             response = self.client.receive_message(
                 QueueUrl=constants.SQS_REQUEST_URL,
                 MaxNumberOfMessages=1,
-                VisibilityTimeout=20,
+                VisibilityTimeout=10,
                 MessageAttributeNames=['All'],
-                WaitTimeSeconds=20
+                WaitTimeSeconds=10
             )
             message = response['Messages'][0]
             receipt_handle = message['ReceiptHandle']
