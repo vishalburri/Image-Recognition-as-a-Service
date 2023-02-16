@@ -18,9 +18,16 @@ lock = Lock()
 
 
 async def get_result(key):
+    """_summary_
+
+    Args:
+        key (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     while True:
         await asyncio.sleep(1)
-        # time.sleep(1)
         with lock:
             if key in result_dict:
                 output_to_be_returned = '{0}'.format(result_dict[key])
@@ -45,9 +52,20 @@ async def upload_files(files: list[UploadFile] | None):
 
 @app.post("/upload")
 async def upload(file: UploadFile):
-    s3_client.upload_to_s3(file, INPUT_S3_BUCKET)
-    result = await get_result(file.filename)
-    return result
+    """_summary_
+
+    Args:
+        file (UploadFile): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    try:
+        s3_client.upload_to_s3(file, INPUT_S3_BUCKET)
+        result = await get_result(file.filename)
+        return result
+    except Exception as e:
+        print(e)
 
 
 def get_response():
