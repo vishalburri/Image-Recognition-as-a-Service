@@ -8,6 +8,15 @@ import boto3
 # import logging
 
 ec2_client = boto3.client('ec2', region_name=constants.AWS_REGION)
+response = ec2_client.describe_instances(
+    Filters=[{'Name': 'instance-id', 'Values': [r.text]}])
+instance = response['Reservations'][0]['Instances'][0]
+tag_name = ''
+if 'Tags' in instance:
+    for tag in instance['Tags']:
+        if tag['Key'] == 'Name':
+            tag_name = tag['Value']
+            break
 
 
 def process_image(sqs: SqsClient, image_processor: ImageProcessor) -> None:
@@ -30,15 +39,6 @@ def process_image(sqs: SqsClient, image_processor: ImageProcessor) -> None:
 
 
 def _terminate_instance():
-    response = ec2_client.describe_instances(
-        Filters=[{'Name': 'instance-id', 'Values': [r.text]}])
-    instance = response['Reservations'][0]['Instances'][0]
-    tag_name = ''
-    if 'Tags' in instance:
-        for tag in instance['Tags']:
-            if tag['Key'] == 'Name':
-                tag_name = tag['Value']
-                break
     # terminate instance if no message is found
     if tag_name != "app-instance-1":
         ec2_client.terminate_instances(InstanceIds=[r.text])
