@@ -88,7 +88,7 @@ def get_instances_by_state(state=None):
     return [instance.id for instance in instances]
 
 
-def auto_scale_loop():
+def auto_scale():
     while True:
         scale_out_ec2()
         time.sleep(15)
