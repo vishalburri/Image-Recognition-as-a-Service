@@ -46,7 +46,7 @@ def _terminate_instance():
     # terminate instance if no message is found
     global isTerminated
     isTerminated = True
-    subprocess.run(["sudo", "shotdown", "-h", "now"])
+    subprocess.run(["sudo", "shutdown", "-h", "now"])
 
 
 def run_polling_job() -> None:
