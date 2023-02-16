@@ -13,6 +13,7 @@ response = ec2_client.describe_instances(
     Filters=[{'Name': 'instance-id', 'Values': [r.text]}])
 instance = response['Reservations'][0]['Instances'][0]
 tag_name = ''
+isTerminated = False
 if 'Tags' in instance:
     for tag in instance['Tags']:
         if tag['Key'] == 'Name':
@@ -41,9 +42,11 @@ def process_image(sqs: SqsClient, image_processor: ImageProcessor) -> None:
 
 def _terminate_instance():
     # terminate instance if no message is found
+    global isTerminated
     if tag_name != "app-instance-1":
         ec2_client.terminate_instances(InstanceIds=[r.text])
-    time.sleep(2)
+        isTerminated = True
+        return
 
 
 def run_polling_job() -> None:
@@ -56,6 +59,8 @@ def run_polling_job() -> None:
 
     while True:
         process_image(sqs, image_processor)
+        if isTerminated:
+            break
         time.sleep(2)
 
 
