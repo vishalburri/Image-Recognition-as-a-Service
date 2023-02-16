@@ -42,27 +42,27 @@ class S3Client:
         """
         self.client.put_object(
             Body=data, Bucket=constants.OUTPUT_S3_BUCKET, Key=image_key)
-        self.client.put_object_tagging(
-            Bucket=constants.OUTPUT_S3_BUCKET,
-            Key=image_key,
-            Tagging={
-                'TagSet': [
-                    {
-                        'Key': 'Image Name',
-                        'Value': image_key
-                    },
-                    {
-                        'Key': 'Result',
-                        'Value': data.split(",")[-1]
-                    },
-                    {
-                        'Key': 'Instance Name',
-                        'Value': str(self.tag_name)
-                    },
-                    {
-                        'Key': 'Instance ID',
-                        'Value': str(self.instance_id)
-                    }
-                ]
-            }
-        )
+        # self.client.put_object_tagging(
+        #     Bucket=constants.OUTPUT_S3_BUCKET,
+        #     Key=image_key,
+        #     Tagging={
+        #         'TagSet': [
+        #             {
+        #                 'Key': 'Image Name',
+        #                 'Value': image_key
+        #             },
+        #             {
+        #                 'Key': 'Result',
+        #                 'Value': data.split(",")[-1]
+        #             },
+        #             {
+        #                 'Key': 'Instance Name',
+        #                 'Value': str(self.tag_name)
+        #             },
+        #             {
+        #                 'Key': 'Instance ID',
+        #                 'Value': str(self.instance_id)
+        #             }
+        #         ]
+        #     }
+        # )
