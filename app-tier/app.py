@@ -8,6 +8,7 @@ import boto3
 # import logging
 
 ec2_client = boto3.client('ec2', region_name=constants.AWS_REGION)
+r = requests.get(constants.INSTANCE_META_DATA_URL)
 response = ec2_client.describe_instances(
     Filters=[{'Name': 'instance-id', 'Values': [r.text]}])
 instance = response['Reservations'][0]['Instances'][0]
@@ -58,5 +59,4 @@ def run_polling_job() -> None:
         time.sleep(2)
 
 
-r = requests.get(constants.INSTANCE_META_DATA_URL)
 run_polling_job()
