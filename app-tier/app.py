@@ -5,22 +5,19 @@ from image_processor import ImageProcessor
 import constants
 import requests
 import boto3
-import subprocess
 
-# import logging
-
-# ec2_client = boto3.client('ec2', region_name=constants.AWS_REGION)
-# r = requests.get(constants.INSTANCE_META_DATA_URL)
-# response = ec2_client.describe_instances(
-#     Filters=[{'Name': 'instance-id', 'Values': [r.text]}])
-# instance = response['Reservations'][0]['Instances'][0]
-# tag_name = ''
+ec2_client = boto3.client('ec2', region_name=constants.AWS_REGION)
+r = requests.get(constants.INSTANCE_META_DATA_URL)
+response = ec2_client.describe_instances(
+    Filters=[{'Name': 'instance-id', 'Values': [r.text]}])
+instance = response['Reservations'][0]['Instances'][0]
+tag_name = ''
 isTerminated = False
-# if 'Tags' in instance:
-#     for tag in instance['Tags']:
-#         if tag['Key'] == 'Name':
-#             tag_name = tag['Value']
-#             break
+if 'Tags' in instance:
+    for tag in instance['Tags']:
+        if tag['Key'] == 'Name':
+            tag_name = tag['Value']
+            break
 
 
 def process_image(sqs: SqsClient, image_processor: ImageProcessor) -> None:
@@ -45,8 +42,10 @@ def process_image(sqs: SqsClient, image_processor: ImageProcessor) -> None:
 def _terminate_instance():
     # terminate instance if no message is found
     global isTerminated
-    isTerminated = True
-    subprocess.run(["sudo", "shutdown", "-h", "now"])
+    if tag_name != "app-instance-1":
+        ec2_client.terminate_instances(InstanceIds=[r.text])
+        isTerminated = True
+        return
 
 
 def run_polling_job() -> None:
