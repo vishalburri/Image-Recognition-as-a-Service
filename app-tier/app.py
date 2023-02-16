@@ -2,7 +2,7 @@ import time
 from sqs_client import SqsClient
 from s3_client import S3Client
 from image_processor import ImageProcessor
-import subprocess
+# import subprocess
 # import constants
 # import requests
 # import boto3
@@ -29,8 +29,8 @@ def process_image(sqs: SqsClient, image_processor: ImageProcessor) -> None:
         if s3_object_path:
             image_processor.process(s3_object_path)
             sqs.delete_message_from_queue(receipt_handle)
-        else:
-            subprocess.run(["sudo", "shutdown", "-h", "now"])
+        # else:
+        #     subprocess.run(["sudo", "shutdown", "-h", "now"])
         #     try:
         #         _terminate_instance()
         #     except Exception as err:
