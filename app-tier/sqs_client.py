@@ -1,7 +1,7 @@
 import boto3
 import json
 import constants
-import requests
+# import requests
 
 
 class SqsClient:
@@ -40,13 +40,13 @@ class SqsClient:
                 MessageAttributeNames=['All'],
                 WaitTimeSeconds=20
             )
-            if 'Messages' not in response or len(response['Messages']) == 0:
-                # terminate this instance
-                instance_id = requests.get(
-                    'http://169.254.169.254/latest/meta-data/instance-id').text
-                ec2 = boto3.client('ec2')
-                ec2.terminate_instances(InstanceIds=[instance_id])
-                return (None, None)
+            # if 'Messages' not in response or len(response['Messages']) == 0:
+            #     # terminate this instance
+            #     instance_id = requests.get(
+            #         'http://169.254.169.254/latest/meta-data/instance-id').text
+            #     ec2 = boto3.client('ec2')
+            #     ec2.terminate_instances(InstanceIds=[instance_id])
+            #     return (None, None)
             message = response['Messages'][0]
             receipt_handle = message['ReceiptHandle']
             s3_path_dict = json.loads(message['Body'])
