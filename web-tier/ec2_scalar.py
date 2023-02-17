@@ -48,6 +48,7 @@ def scale_out_ec2():
     num_of_messages = get_approximate_messages_from_queue()
     running_instances = len(get_instances_by_state())
     pending_instances = len(get_instances_by_state(['pending']))
+    stopping_instances = len(get_instances_by_state(['shutting-down']))
     total_instances = running_instances + pending_instances
     if (pending_instances > 0 or num_of_messages == 0):
         print(
@@ -56,6 +57,9 @@ def scale_out_ec2():
     if (running_instances >= MAX_INSTANCES or pending_instances >= MAX_INSTANCES or (running_instances + pending_instances) >= MAX_INSTANCES):
         print("MAX limit reached")
         return
+
+    if (stopping_instances > 0):
+        print("Stopping instances are present.. returning")
 
     if total_instances < num_of_messages:
         print(
