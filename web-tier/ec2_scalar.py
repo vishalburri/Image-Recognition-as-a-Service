@@ -50,7 +50,8 @@ def scale_out_ec2():
     pending_instances = len(get_instances_by_state(['pending']))
     total_instances = running_instances + pending_instances
     if (pending_instances > 0 or num_of_messages == 0):
-        print("Returning no messages or pending instances available")
+        print(
+            f"{num_of_messages} messages: Returning no messages or pending instances available")
         return
     if (running_instances >= MAX_INSTANCES or pending_instances >= MAX_INSTANCES or (running_instances + pending_instances) >= MAX_INSTANCES):
         print("MAX limit reached")
@@ -88,7 +89,6 @@ def get_instances_by_state(state=None):
     return [instance.id for instance in instances]
 
 
-def auto_scale():
-    while True:
-        scale_out_ec2()
-        time.sleep(15)
+while True:
+    scale_out_ec2()
+    time.sleep(15)
