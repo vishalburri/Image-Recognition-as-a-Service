@@ -6,6 +6,7 @@ from threading import Thread, Lock
 import time
 import json
 import asyncio
+from ec2_scalar import auto_scale
 app = FastAPI()
 
 # Load the Jinja2 template
@@ -81,4 +82,7 @@ def get_response():
 
 
 response_thread = Thread(target=get_response)
+response_thread1 = Thread(target=auto_scale)
+
 response_thread.start()
+response_thread1.start()
