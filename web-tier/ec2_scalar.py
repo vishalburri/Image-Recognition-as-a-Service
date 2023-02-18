@@ -16,32 +16,35 @@ MAX_INSTANCES = 19
 
 
 def launch_ec2_instances(num_instances):
-    instances = ec2.create_instances(
-        ImageId=ami_id,
-        MinCount=num_instances,
-        MaxCount=num_instances,
-        InstanceType=instance_type,
-        SecurityGroupIds=security_group_ids,
-        IamInstanceProfile={
-            'Arn': 'arn:aws:iam::376277702783:instance-profile/ec2auto-scaler-role'
-        },
-        UserData=user_data,
-        KeyName=key_pair_name,
-    )
-    current_running_count = len(get_instances_by_state())
-    for instance in instances:
-        current_running_count += 1
-        ec2.create_tags(Resources=[instance.id], Tags=[
-            {
-                'Key': 'Name',
-                'Value': "app-instance-" + str(current_running_count),
+    try:
+        instances = ec2.create_instances(
+            ImageId=ami_id,
+            MinCount=num_instances,
+            MaxCount=num_instances,
+            InstanceType=instance_type,
+            SecurityGroupIds=security_group_ids,
+            IamInstanceProfile={
+                'Arn': 'arn:aws:iam::376277702783:instance-profile/ec2auto-scaler-role'
             },
-        ])
+            UserData=user_data,
+            KeyName=key_pair_name,
+        )
+        current_running_count = len(get_instances_by_state())
+        for instance in instances:
+            current_running_count += 1
+            ec2.create_tags(Resources=[instance.id], Tags=[
+                {
+                    'Key': 'Name',
+                    'Value': "app-instance-" + str(current_running_count),
+                },
+            ])
 
-    instance_ids = [instance.id for instance in instances]
+        instance_ids = [instance.id for instance in instances]
 
-    print(
-        f"Created {len(instance_ids)} EC2 instances with IDs: {', '.join(instance_ids)}")
+        print(
+            f"Created {len(instance_ids)} EC2 instances with IDs: {', '.join(instance_ids)}")
+    except Exception as e:
+        print(e)
 
 
 def scale_out_ec2():
