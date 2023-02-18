@@ -2,6 +2,7 @@ import boto3
 import time
 
 ec2 = boto3.resource('ec2', region_name='us-east-1')
+ec2_client = boto3.client('ec2', region_name='us-east-1')
 sqs = boto3.client('sqs', region_name='us-east-1')
 ami_id = 'ami-0c0d32b5bbf7c12f2'
 security_group_ids = ['sg-05220ab67d3789415', 'sg-03ab8519900f1ec06']
@@ -53,6 +54,23 @@ def scale_out_ec2():
     pending_instances = len(get_instances_by_state(['pending']))
     stopping_instances = len(get_instances_by_state(['shutting-down']))
     total_instances = running_instances + pending_instances
+    if (num_of_messages == 0 and (running_instances + pending_instances) > 1):
+        response = ec2_client.describe_instances(
+            Filters=[{'Name': 'image-id', 'Values': [ami_id]}])
+        instances = response['Reservations'][0]['Instances']
+        tag_name = ''
+        terminate_list = []
+        for instance in instances:
+            print(instance['InstanceId'])
+            if 'Tags' in instance:
+                for tag in instance['Tags']:
+                    if tag['Key'] == 'Name':
+                        tag_name = tag['Value']
+                        print(tag_name)
+                        if tag_name != 'app-instance-1':
+                            terminate_list.append(instance['InstanceId'])
+        ec2_client.terminate_instances(InstanceIds=terminate_list)
+
     if (pending_instances > 0 or num_of_messages == 0):
         print(
             f"{num_of_messages} messages: Returning no messages or pending instances available")
@@ -99,4 +117,4 @@ def get_instances_by_state(state=None):
 def auto_scale():
     while True:
         scale_out_ec2()
-        time.sleep(5)
+        time.sleep(10)
