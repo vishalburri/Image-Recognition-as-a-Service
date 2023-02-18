@@ -99,4 +99,4 @@ def get_instances_by_state(state=None):
 def auto_scale():
     while True:
         scale_out_ec2()
-        time.sleep(15)
+        time.sleep(5)
