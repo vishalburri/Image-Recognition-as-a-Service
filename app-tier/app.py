@@ -30,6 +30,7 @@ def process_image(sqs: SqsClient, image_processor: ImageProcessor) -> None:
         else:
             # subprocess.run(["sudo", "shutdown", "-h", "now"])
             try:
+                time.sleep(5)
                 _terminate_instance()
             except Exception as err:
                 print(err)
