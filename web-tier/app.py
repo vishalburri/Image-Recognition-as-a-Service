@@ -82,7 +82,7 @@ def get_response():
 
 
 response_thread = Thread(target=get_response)
-response_thread1 = Thread(target=auto_scale)
+# response_thread1 = Thread(target=auto_scale)
 
 response_thread.start()
-response_thread1.start()
+# response_thread1.start()
