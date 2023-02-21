@@ -5,7 +5,7 @@ import datetime
 ec2 = boto3.resource('ec2', region_name='us-east-1')
 ec2_client = boto3.client('ec2', region_name='us-east-1')
 sqs = boto3.client('sqs', region_name='us-east-1')
-cloudwatch = boto3.client('cloudwatch')
+cloudwatch = boto3.client('cloudwatch', region_name='us-east-1')
 ami_id = 'ami-0c0d32b5bbf7c12f2'
 security_group_ids = ['sg-05220ab67d3789415', 'sg-03ab8519900f1ec06']
 instance_type = 't2.micro'
@@ -52,6 +52,7 @@ def launch_ec2_instances(num_instances):
 
 def scale_out_ec2():
     num_of_messages = get_approximate_messages_visible_from_queue()
+    current_num_of_messages = get_approximate_messages_from_queue()
     running_instances = len(get_instances_by_state())
     pending_instances = len(get_instances_by_state(['pending']))
     stopping_instances = len(get_instances_by_state(['shutting-down']))
@@ -83,6 +84,11 @@ def scale_out_ec2():
 
     if (stopping_instances > 0):
         print("Stopping instances are present.. returning")
+        return
+
+    if (num_of_messages > 0 and current_num_of_messages == 0):
+        print("Current message count is zero")
+        return
 
     if total_instances < num_of_messages:
         print(
@@ -147,4 +153,4 @@ def get_instances_by_state(state=None):
 def auto_scale():
     while True:
         scale_out_ec2()
-        time.sleep(10)
+        time.sleep(60)
