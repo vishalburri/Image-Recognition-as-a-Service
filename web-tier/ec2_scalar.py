@@ -59,8 +59,10 @@ def scale_out_ec2():
     total_instances = running_instances + pending_instances
     if (num_of_messages == 0 and (running_instances + pending_instances) > 1):
         response = ec2_client.describe_instances(
-            Filters=[{'Name': 'image-id', 'Values': [ami_id]}])
-        instances = response['Reservations'][0]['Instances']
+            Filters=[{'Name': 'image-id', 'Values': [ami_id]}, {'Name': 'instance-state-name', 'Values': ['running', 'pending']}])
+        instances = []
+        for reservation in response['Reservations']:
+            instances.extend(reservation['Instances'])
         tag_name = ''
         terminate_list = []
         for instance in instances:
