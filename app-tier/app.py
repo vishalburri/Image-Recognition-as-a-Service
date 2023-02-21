@@ -27,12 +27,12 @@ def process_image(sqs: SqsClient, image_processor: ImageProcessor) -> None:
         if s3_object_path:
             image_processor.process(s3_object_path)
             sqs.delete_message_from_queue(receipt_handle)
-        else:
-            try:
-                time.sleep(5)
-                _terminate_instance()
-            except Exception as err:
-                print(err)
+        # else:
+        #     try:
+        #         time.sleep(5)
+        #         _terminate_instance()
+        #     except Exception as err:
+        #         print(err)
     except Exception as e:
         print(e)
         # logging.info("Messages not available", e)
