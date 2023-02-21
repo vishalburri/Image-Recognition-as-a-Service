@@ -1,9 +1,11 @@
 import boto3
 import time
+import datetime
 
 ec2 = boto3.resource('ec2', region_name='us-east-1')
 ec2_client = boto3.client('ec2', region_name='us-east-1')
 sqs = boto3.client('sqs', region_name='us-east-1')
+cloudwatch = boto3.client('cloudwatch')
 ami_id = 'ami-0c0d32b5bbf7c12f2'
 security_group_ids = ['sg-05220ab67d3789415', 'sg-03ab8519900f1ec06']
 instance_type = 't2.micro'
@@ -49,7 +51,7 @@ def launch_ec2_instances(num_instances):
 
 
 def scale_out_ec2():
-    num_of_messages = get_approximate_messages_from_queue()
+    num_of_messages = get_approximate_messages_visible_from_queue()
     running_instances = len(get_instances_by_state())
     pending_instances = len(get_instances_by_state(['pending']))
     stopping_instances = len(get_instances_by_state(['shutting-down']))
@@ -95,6 +97,34 @@ def get_approximate_messages_from_queue() -> int:
         'ApproximateNumberOfMessages'])
     num_of_messages = response['Attributes']['ApproximateNumberOfMessages']
     return int(num_of_messages)
+
+
+def get_approximate_messages_visible_from_queue() -> int:
+    try:
+        start_time = datetime.datetime.utcnow() - datetime.timedelta(minutes=1)
+        end_time = datetime.datetime.utcnow()
+
+        response = cloudwatch.get_metric_statistics(
+            Namespace='AWS/SQS',
+            MetricName='ApproximateNumberOfMessagesVisible',
+            Dimensions=[
+                {
+                    'Name': 'QueueName',
+                    'Value': 'CSE-546-project1-request-queue'
+                }
+            ],
+            StartTime=start_time,
+            EndTime=end_time,
+            Period=60,
+            Statistics=['Maximum']
+        )
+        if len(response['Datapoints']) > 0:
+            num_messages = response['Datapoints'][-1]['Maximum']
+            return num_messages
+        else:
+            return 0
+    except Exception as e:
+        print(e)
 
 
 def get_instances_by_state(state=None):

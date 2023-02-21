@@ -58,7 +58,7 @@ def run_polling_job() -> None:
         process_image(sqs, image_processor)
         # if isTerminated:
         #     break
-        time.sleep(2)
+        time.sleep(4)
 
 
 run_polling_job()
