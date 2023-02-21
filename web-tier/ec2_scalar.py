@@ -51,8 +51,8 @@ def launch_ec2_instances(num_instances):
 
 
 def scale_out_ec2():
-    num_of_messages = get_approximate_messages_visible_from_queue()
-    # current_num_of_messages = get_approximate_messages_from_queue()
+    current_num_of_messages = get_approximate_messages_from_queue()
+    num_of_messages = get_approximate_messages_from_queue()
     running_instances = len(get_instances_by_state())
     pending_instances = len(get_instances_by_state(['pending']))
     stopping_instances = len(get_instances_by_state(['shutting-down']))
@@ -155,4 +155,4 @@ def get_instances_by_state(state=None):
 def auto_scale():
     while True:
         scale_out_ec2()
-        time.sleep(10)
+        time.sleep(30)
