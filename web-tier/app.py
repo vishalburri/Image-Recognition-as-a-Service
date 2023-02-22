@@ -52,7 +52,7 @@ def upload_files(files: list[UploadFile] | None):
 
 
 @app.post("/upload")
-async def upload(file: UploadFile):
+def upload(file: UploadFile):
     """_summary_
 
     Args:
@@ -63,7 +63,7 @@ async def upload(file: UploadFile):
     """
     try:
         s3_client.upload_to_s3(file, INPUT_S3_BUCKET)
-        result = await get_result(file.filename)
+        result = get_result(file.filename)
         return result
     except Exception as e:
         print(e)
