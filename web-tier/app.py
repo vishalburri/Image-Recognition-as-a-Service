@@ -18,7 +18,7 @@ result_dict = {}
 lock = Lock()
 
 
-async def get_result(key):
+def get_result(key):
     """_summary_
 
     Args:
@@ -28,7 +28,7 @@ async def get_result(key):
         _type_: _description_
     """
     while True:
-        await asyncio.sleep(1)
+        # await asyncio.sleep(1)
         with lock:
             if key in result_dict:
                 output_to_be_returned = '{0}'.format(result_dict[key])
@@ -42,11 +42,11 @@ def index(request: Request):
 
 
 @app.post("/")
-async def upload_files(files: list[UploadFile] | None):
+def upload_files(files: list[UploadFile] | None):
     for file in files:
         if file.filename != '':
             s3_client.upload_to_s3(file, INPUT_S3_BUCKET)
-            result = await get_result(file.filename)
+            result = get_result(file.filename)
             print(result)
     raise HTTPException(status_code=302, headers={"Location": "/"})
 
